@@ -9,13 +9,20 @@ using namespace std;
 
 vector<double> maxSumSeqInMid(vector<double>vec, vector<double> res_left, vector<double> res_right, int mid){
     vector<double> res_mid(3);
-    int left_start = res_left.at(0), left_end = res_left.at(1), right_end = res_right.at(1);
-    double mid_sum = res_left.at(2);
-    for(int i = left_end+1; i <= mid+1; i++){
-        mid_sum += vec.at(i);
-    }
+    int left_start = res_left.at(0), right_end = res_right.at(1);
+    double mid_sum = vec.at(mid) + vec.at(mid+1);
     double new_sum = mid_sum;
-    int start = left_start, end = mid + 1;
+
+    int start = mid, end = mid+1;
+    for(int i = mid-1; i >= left_start; i--){
+        new_sum += vec.at(i);
+        if(new_sum > mid_sum){
+            start = i;
+            mid_sum = new_sum;
+        }
+    }
+
+    new_sum = mid_sum;
     for(int j = mid+2; j <= right_end; j++){
         new_sum += vec.at(j);
         if(new_sum > mid_sum){
@@ -59,9 +66,8 @@ vector<double> maxSumSeq2(vector<double> vec, int low, int high){
     double summation = -1, new_sum;
     int start = 0, end = 0;
     for(int i = low; i <= high; i++){
-        if(vec.at(i) < 0) continue;      // first num is negative, then break.
         new_sum = 0;
-        for(int j = i; j < high; j++){
+        for(int j = i; j <= high; j++){
             new_sum += vec.at(j);
             if(new_sum > summation){
                 start = i;
@@ -135,7 +141,7 @@ int main(int argc, char *argv[]){
             cout << vd.at(i) << " ";
         cout << std::endl;
         cout << "Their summation is:" << result2.at(2) << std::endl;
-}
+    }
     return 0;
 }
 
