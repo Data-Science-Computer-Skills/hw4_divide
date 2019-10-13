@@ -7,9 +7,8 @@
 #include <chrono>
 using namespace std;
 
-vector<double> maxSumSeqInMid(vector<double>vec, vector<double> res_left, vector<double> res_right, int mid){
+vector<double> maxSumSeqInMid(vector<double>vec, int left_start, int right_end, int mid){
     vector<double> res_mid(3);
-    int left_start = res_left.at(0), right_end = res_right.at(1);
     double mid_sum = vec.at(mid) + vec.at(mid+1);
     double new_sum = mid_sum;
 
@@ -41,7 +40,7 @@ vector<double> maxSumSeq(vector<double> vec, int low, int high){
     if(low == high){
         res.at(0) = low;
         res.at(1) = high;
-        res.at(2) = vec[low];
+        res.at(2) = vec.at(low);
         return res;
     }
 
@@ -54,7 +53,8 @@ vector<double> maxSumSeq(vector<double> vec, int low, int high){
     else
         res = res_left;
 
-    res_mid = maxSumSeqInMid(vec, res_left, res_right, mid);
+    res_mid = maxSumSeqInMid(vec, res_left.at(0), res_right.at(1), mid);
+
     if(res_mid.at(2) > res.at(2))
         res = res_mid;
 
@@ -82,6 +82,32 @@ vector<double> maxSumSeq2(vector<double> vec, int low, int high){
     return res;
 }
 
+vector<double> maxSumSeq3(vector<double> vec, int low, int high){
+    vector<double> res(3);
+    res.at(0) = low;
+    res.at(1) = low;
+    res.at(2) = vec.at(low);
+    double summation = res.at(2), new_sum = summation;
+    for(int i = low+1; i <= high; i++){
+        if(new_sum > 0)
+            new_sum += vec.at(i);
+        else
+            new_sum = vec.at(i);
+        if(new_sum > summation && new_sum > vec.at(i)) {
+            summation = new_sum;
+            res.at(1) = i;
+        } else if(new_sum > summation){
+            summation = new_sum;
+            res.at(0) = i;
+            res.at(1) = i;
+        }
+    }
+    res.at(2) = summation;
+    return res;
+}
+
+
+
 int main(int argc, char *argv[]){
     int seedN,sizeN, is_print_array;
     std::default_random_engine generator;
@@ -106,7 +132,7 @@ int main(int argc, char *argv[]){
         cout << std::endl;
     }
     // implement your own function
-    cout << "------------Divide Method------------\n";
+    cout << "------------ Divide Method ------------\n";
     auto t1 = chrono::high_resolution_clock::now();
     vector<double> result = maxSumSeq(vd, 0, sizeN-1);
     auto t2 = chrono::high_resolution_clock::now();
@@ -121,11 +147,11 @@ int main(int argc, char *argv[]){
         for(i = left; i <=right; i++)
             cout << vd.at(i) << " ";
         cout << std::endl;
-        cout << "Their summation is:" << result.at(2) << std::endl;
     }
+    cout << "Their summation is:" << result.at(2) << std::endl;
 
 
-    cout << "------------Brute-Force Method------------\n";
+    cout << "------------ Brute-Force Method ------------\n";
     auto t3 = chrono::high_resolution_clock::now();
     vector<double> result2 = maxSumSeq2(vd, 0, sizeN-1);
     auto t4 = chrono::high_resolution_clock::now();
@@ -140,8 +166,26 @@ int main(int argc, char *argv[]){
         for(i = left2; i <=right2; i++)
             cout << vd.at(i) << " ";
         cout << std::endl;
-        cout << "Their summation is:" << result2.at(2) << std::endl;
     }
+    cout << "Their summation is:" << result2.at(2) << std::endl;
+
+    cout << "------------ O(N) Method ------------\n";
+    auto t5 = chrono::high_resolution_clock::now();
+    vector<double> result3 = maxSumSeq3(vd, 0, sizeN-1);
+    auto t6 = chrono::high_resolution_clock::now();
+    chrono::duration<double, std::milli> fp_ms3 = t6 - t5;
+    cout << "O(N) method time: " << fp_ms3.count()<< " milliseconds.\n";
+
+    if(is_print_array){
+        cout << "The consecutive subarray with maximum summation is:" << std::endl;
+        int left3, right3;
+        left3 = result3.at(0);
+        right3 = result3.at(1);
+        for(i = left3; i <=right3; i++)
+            cout << vd.at(i) << " ";
+        cout << std::endl;
+    }
+    cout << "Their summation is:" << result3.at(2) << std::endl;
     return 0;
 }
 
